@@ -129,6 +129,43 @@ func (this *MatrixInt64) Multi(m Matrix) Matrix {
 	return nil
 }
 
+func (this *MatrixInt64) MultiNumber(v interface{}) Matrix {
+	if _v, yes := v.(float64); yes {
+
+		// float64
+		var (
+			row, col int         = this.Size()
+			data     [][]float64 = [][]float64{}
+		)
+		for i := 0; i < row; i++ {
+			d := []float64{}
+			for j := 0; j < col; j++ {
+				d = append(d, float64(this.data[i][j])*val)
+			}
+			data = append(data, d)
+		}
+		return NewMatrixFloat64(data)
+
+	} else if _v2, yes2 := v.(int); yes2 {
+
+		// int
+		var (
+			row, col int       = this.Size()
+			data     [][]int64 = [][]int64{}
+		)
+		copy(data, this.data)
+		for i := 0; i < row; i++ {
+			for j := 0; j < col; j++ {
+				data[i][j] *= _v2
+			}
+		}
+		return NewMatrixInt64(data)
+
+	} else {
+		return nil
+	}
+}
+
 func NewMatrixInt64(dataInt64 [][]int64) Matrix {
 	return &MatrixInt64{data: dataInt64}
 }

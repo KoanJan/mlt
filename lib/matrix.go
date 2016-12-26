@@ -11,6 +11,8 @@ type Matrix interface {
 	// calc
 	Plus(Matrix) Matrix  // matrix plus
 	Multi(Matrix) Matrix // matrix multi
+
+	MultiNumber(interface{}) Matrix // matrix multi number
 }
 
 func canMatrixPlus(a, b Matrix) bool {
