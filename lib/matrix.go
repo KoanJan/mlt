@@ -5,6 +5,7 @@ type Matrix interface {
 	Type() string             // type of elem
 	Get(int, int) interface{} // get element value
 	String() string           // format output as string
+	IsEqual(Matrix) bool      // is equal to another matrix
 
 	// calc
 	Plus(Matrix) Matrix  // matrix plus

@@ -57,6 +57,30 @@ func (this *MatrixInt64) String() string {
 	return out
 }
 
+func (this *MatrixInt64) IsEqual(m Matrix) bool {
+	if m == nil {
+		return false
+	}
+	if this.Type() != m.Type() {
+		return false
+	}
+	var (
+		r1, c1 int = this.Size()
+		r2, c2 int = m.Size()
+	)
+	if r1 != r2 || c1 != c2 {
+		return false
+	}
+	for i := 0; i < r1; i++ {
+		for j := 0; j < c1; j++ {
+			if this.get(i, j) != m.Get(i, j).(int64) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (this *MatrixInt64) Plus(m Matrix) Matrix {
 	if canMatrixPlus(this, m) {
 		row, col := this.Size()
