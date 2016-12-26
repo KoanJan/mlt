@@ -7,14 +7,14 @@ import (
 )
 
 func main() {
-	a := lib.NewMatrixInt64([][]int64{
-		[]int64{1, 2, 3},
-		[]int64{4, 5, 6},
+	a := lib.NewMatrixFloat64([][]float64{
+		[]float64{1.01, 2.4, 3.2},
+		[]float64{4.16, 5.31, 6.5},
 	})
-	b := lib.NewMatrixInt64([][]int64{
-		[]int64{1, 4},
-		[]int64{2, 5},
-		[]int64{3, 6},
+	b := lib.NewMatrixFloat64([][]float64{
+		[]float64{1.01, 4.16},
+		[]float64{2.4, 5.31},
+		[]float64{3.2, 6.5},
 	})
 	fmt.Println(a.Multi(b))
 }
