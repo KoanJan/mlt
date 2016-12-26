@@ -1,11 +1,12 @@
 package lib
 
 type Matrix interface {
-	Size() (int, int)         // return rows count and columns count of the matrix
-	Type() string             // type of elem
-	Get(int, int) interface{} // get element value
-	String() string           // format output as string
-	IsEqual(Matrix) bool      // is equal to another matrix
+	Size() (int, int)          // return rows count and columns count of the matrix
+	Type() string              // type of elem
+	Get(int, int) interface{}  // get element value
+	Set(int, int, interface{}) // set element value
+	String() string            // format output as string
+	IsEqual(Matrix) bool       // is equal to another matrix
 
 	// calc
 	Plus(Matrix) Matrix  // matrix plus

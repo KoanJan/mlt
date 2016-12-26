@@ -38,6 +38,14 @@ func (this *MatrixInt64) get(row, col int) int64 {
 	return this.data[row][col]
 }
 
+func (this *MatrixInt64) Set(row, col int, v interface{}) {
+	if r, c := this.Size(); row < r && row >= 0 && col < c && col >= 0 {
+		if val, yes := v.(int64); yes {
+			this.data[r][c] = val
+		}
+	}
+}
+
 func (this *MatrixInt64) String() string {
 	var (
 		out  string
