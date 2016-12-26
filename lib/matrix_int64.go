@@ -27,9 +27,15 @@ func (this *MatrixInt64) Get(row, col int) interface{} {
 		return nil
 	}
 	if r, c := this.Size(); row < r && col < c {
-		return this.data[row][col]
+		return this.get(row, col)
 	}
 	return nil
+}
+
+// unsafe.
+// before use it you must make sure that row and col is valid, or you'd better use Get
+func (this *MatrixInt64) get(row, col int) int64 {
+	return this.data[row][col]
 }
 
 func (this *MatrixInt64) String() string {
@@ -43,7 +49,7 @@ func (this *MatrixInt64) String() string {
 		for i := 0; i < r; i++ {
 			var tmp string
 			for j := 0; j < c; j++ {
-				tmp = fmt.Sprintf("%s%10d ", tmp, this.Get(i, j).(int64))
+				tmp = fmt.Sprintf("%s%10d ", tmp, this.get(i, j))
 			}
 			out += tmp + "\n"
 		}
@@ -58,9 +64,33 @@ func (this *MatrixInt64) Plus(m Matrix) Matrix {
 		for i := 0; i < row; i++ {
 			r := []int64{}
 			for j := 0; j < col; j++ {
-				r = append(r, this.data[i][j]+m.Get(i, j).(int64))
+				r = append(r, this.get(i, j)+m.Get(i, j).(int64))
 			}
 			data = append(data, r)
+		}
+		return NewMatrixInt64(data)
+	}
+	return nil
+}
+
+func (this *MatrixInt64) Multi(m Matrix) Matrix {
+	if canMatrixMulti(this, m) {
+		var (
+			row1, col1 int       = this.Size()
+			_, col2    int       = m.Size()
+			data       [][]int64 = [][]int64{}
+		)
+		for i := 0; i < row1; i++ {
+			newRow := []int64{}
+			for j := 0; j < col2; j++ {
+				// col1 is equal to row2
+				var v int64
+				for k := 0; k < col1; k++ {
+					v += this.get(i, k) * m.Get(k, j).(int64)
+				}
+				newRow = append(newRow, v)
+			}
+			data = append(data, newRow)
 		}
 		return NewMatrixInt64(data)
 	}

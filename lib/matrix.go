@@ -7,15 +7,15 @@ type Matrix interface {
 	String() string           // format output as string
 
 	// calc
-	Plus(Matrix) Matrix // matrix plus
-	// TODO
-	// Multi(Matrix) Matrix // matrix multi
+	Plus(Matrix) Matrix  // matrix plus
+	Multi(Matrix) Matrix // matrix multi
 }
 
 func canMatrixPlus(a, b Matrix) bool {
 	if a == nil || b == nil {
 		return false
 	}
+	// can translate
 	if a.Type() != b.Type() {
 		return false
 	}
@@ -24,4 +24,19 @@ func canMatrixPlus(a, b Matrix) bool {
 		r2, c2 int = b.Size()
 	)
 	return r1 == r2 && c1 == c2
+}
+
+func canMatrixMulti(a, b Matrix) bool {
+	if a == nil || b == nil {
+		return false
+	}
+	// can translate
+	if a.Type() != b.Type() {
+		return false
+	}
+	var (
+		_, col1 int = a.Size()
+		row2, _ int = b.Size()
+	)
+	return col1 == row2
 }
