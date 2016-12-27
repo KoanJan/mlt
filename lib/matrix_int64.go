@@ -140,18 +140,18 @@ func (this *MatrixInt64) MultiNumber(v interface{}) Matrix {
 		for i := 0; i < row; i++ {
 			d := []float64{}
 			for j := 0; j < col; j++ {
-				d = append(d, float64(this.data[i][j])*val)
+				d = append(d, float64(this.data[i][j])*_v)
 			}
 			data = append(data, d)
 		}
 		return NewMatrixFloat64(data)
 
-	} else if _v2, yes2 := v.(int); yes2 {
+	} else if _v2, yes2 := v.(int64); yes2 {
 
 		// int
 		var (
 			row, col int       = this.Size()
-			data     [][]int64 = [][]int64{}
+			data     [][]int64 = make([][]int64, len(this.data))
 		)
 		copy(data, this.data)
 		for i := 0; i < row; i++ {
