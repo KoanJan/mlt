@@ -47,10 +47,6 @@ func (this *BasePerceptron) Train(xSet []lib.Vector, ySet []int) {
 			continue
 		}
 		for y != ySet[i] {
-			// var _eta float64 = this.eta
-			// if y < ySet[i] {
-			// 	_eta = -this.eta
-			// }
 			log.Printf("w=%v b=%10f x=%v\n", this.w, this.b, xSet[i])
 			// wrong, fix w and b
 			tmpW := this.w.Plus(xSet[i].MultiNumber(this.eta * float64(ySet[i])))
