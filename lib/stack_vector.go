@@ -21,6 +21,10 @@ func (this *StackVector) Pop() interface{} {
 	return v
 }
 
+func (this *StackVector) IsEmpty() bool {
+	return len(this.data) == 0
+}
+
 func NewStackVector(data ...Vector) Stack {
 	stack := &StackVector{data: []Vector{}}
 	if len(data) > 0 {
