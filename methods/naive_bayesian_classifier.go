@@ -26,8 +26,8 @@ func (this *NaiveBayesianClassifier) Train(data [][]*lib.Value) {
 	}
 	this.n = n
 	// init xProbabilities
-	this.xProbabilities = make([]map[interface{}]map[interface{}]float64, n-2)
-	for i := 0; i < m-1; i++ {
+	this.xProbabilities = make([]map[interface{}]map[interface{}]float64, n-1)
+	for i := 0; i < n-1; i++ {
 		this.xProbabilities[i] = map[interface{}]map[interface{}]float64{}
 	}
 	// init yProbabilities
@@ -42,20 +42,22 @@ func (this *NaiveBayesianClassifier) Train(data [][]*lib.Value) {
 	for i := 0; i < n-1; i++ {
 		xFreq[i] = map[interface{}]map[interface{}]int{}
 	}
-	yFreq := make(map[interface{}]float64)
+	yFreq := make(map[interface{}]int)
 	for i := 0; i < m; i++ {
 		for j := 0; j < n-1; j++ {
 			if xFreq[j][data[i][j].V()] == nil {
-				xFreq[j][data[i][j].V()] = map[interface{}]float64{}
+				xFreq[j][data[i][j].V()] = map[interface{}]int{}
 			}
 			xFreq[j][data[i][j].V()][data[i][n-1].V()] += 1
 		}
 		yFreq[data[i][n-1].V()] += 1
-
 	}
-	for i := 0; i < n; i++ {
-		// Laplace smoothing, and lmd representing λ is set with 1
-		lmd := len(yFreq[i])
+	// Laplace smoothing, and lmd representing λ is set with 1
+	lmd := len(yFreq)
+	for ky, fy := range yFreq {
+		this.yProbabilities[ky] = float64(fy+1) / float64(m+lmd)
+	}
+	for i := 0; i < n-1; i++ {
 		for kx, fx := range xFreq[i] {
 			if fx == nil {
 				panic("invalid data")
@@ -64,16 +66,15 @@ func (this *NaiveBayesianClassifier) Train(data [][]*lib.Value) {
 				if this.xProbabilities[i][kx] == nil {
 					this.xProbabilities[i][kx] = map[interface{}]float64{}
 				}
-				this.xProbabilities[i][kx][ky] = float64(fy+1) / (yFreq[ky] + lmd)
+				this.xProbabilities[i][kx][ky] = float64(fy+1) / float64(yFreq[ky]+lmd)
 			}
 		}
 	}
-	//
 }
 
 // predict
 func (this *NaiveBayesianClassifier) Predict(v []*lib.Value) (interface{}, string) {
-	if len(v) != n {
+	if len(v) != this.n-1 || len(v) == 0 {
 		return nil, ""
 	}
 	var (
@@ -88,7 +89,7 @@ func (this *NaiveBayesianClassifier) Predict(v []*lib.Value) (interface{}, strin
 		// nil means that the dimension of whose index doesn't limit value
 		if v[i] != nil {
 			for ky, _ := range fs {
-				fs[ky] *= this.xProbabilities[v[i].V()][ky]
+				fs[ky] *= this.xProbabilities[i][v[i].V()][ky]
 			}
 		}
 	}
@@ -100,4 +101,8 @@ func (this *NaiveBayesianClassifier) Predict(v []*lib.Value) (interface{}, strin
 		}
 	}
 	return y, this.recordTypes[this.n-1]
+}
+
+func NewNaiveBayesianClassifier() *NaiveBayesianClassifier {
+	return new(NaiveBayesianClassifier)
 }
