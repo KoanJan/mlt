@@ -112,7 +112,7 @@ func gaID3(tree *decisionTree, threshold float64, data [][]*lib.Value) {
 			if _, existed := fy[data[j][i].V()]; !existed {
 				fy[data[j][i].V()] = map[interface{}]int{}
 			}
-			fy[data[j][i].V()][data[n-1][i].V()] += 1
+			fy[data[j][i].V()][data[j][n-1].V()] += 1
 		}
 		// conditional entropy
 		var h float64
@@ -121,7 +121,7 @@ func gaID3(tree *decisionTree, threshold float64, data [][]*lib.Value) {
 			for _, vy := range fy[kx] {
 				proby = append(proby, float64(vy)/float64(vx))
 			}
-			h += ent - (float64(vx)/float64(m))*entropy(proby...)
+			h += (float64(vx) / float64(m)) * entropy(proby...)
 		}
 		gs[i] = ent - h
 	}
@@ -178,9 +178,9 @@ func gaID3(tree *decisionTree, threshold float64, data [][]*lib.Value) {
 // calculate probabilities
 func p(data [][]*lib.Value, index int) []float64 {
 	var (
-		leng int = len(data)
-		m    map[interface{}]int
-		prob []float64 = []float64{}
+		leng int                 = len(data)
+		m    map[interface{}]int = make(map[interface{}]int)
+		prob []float64           = []float64{}
 	)
 	for i := 0; i < leng; i++ {
 		m[data[i][index].V()] += 1
@@ -214,5 +214,8 @@ func (this *DT) Predict(v []*lib.Value) (interface{}, string) {
 
 // NewDT returns a new DT
 func NewDT(ga, postPruning int, threshold float64) *DT {
+	if threshold == 0 {
+		panic("threshold should be larger than 0")
+	}
 	return &DT{ga: ga, postPruning: postPruning, threshold: threshold, tree: new(decisionTree)}
 }
