@@ -53,9 +53,36 @@ type decisionTreeFeature struct {
 	_type string
 }
 
-// TODO
+// train
 func (this *DT) Train(data [][]*lib.Value) {
-	//
+	// init
+	this.tree = new(decisionTree)
+
+	// generation
+	switch this.ga {
+	case DT_GA_ID3:
+		gaID3(this.tree, this.threshold, data)
+	case DT_GA_C4_5:
+		// TODO
+	case DT_GA_CART:
+		// TODO
+	default:
+		panic("unknown generating algorithm")
+	}
+
+	// pruning
+	switch this.postPruning {
+	case DT_PRUNING_NO:
+		break
+	case DT_PRUNING_REP:
+		// TODO
+	case DT_PRUNING_PEP:
+		// TODO
+	case DT_PRUNING_CCP:
+		// TODO
+	default:
+		panic("unknown post pruning program")
+	}
 }
 
 // gaId3 generates a decisionTree with ID3 algorithm
