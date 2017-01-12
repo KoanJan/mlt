@@ -23,26 +23,34 @@ const (
 
 // DT decision tree
 type DT struct {
-	ga          int
-	postPruning int
+	ga          int // generating algorithm
+	postPruning int // post pruning program
 
-	alpha float64
+	threshold float64 // threshold
 
-	tree *decisionTree
+	classType string // type of class
+
+	tree *decisionTree // decision tree structure
 }
 
 // decisionTree
-// If the tree is node, its children or feature shouldn't be nil and values should be nil.
-// And on the contrary, if the tree is leaf, its children and feature should be nil and values shouldn't be nil
+// If the tree is node, its children or feature shouldn't be nil and class should be nil.
+// And on the contrary, if the tree is leaf, its children and feature should be nil and class shouldn't be nil
 type decisionTree struct {
+
 	// node
 	children map[interface{}]*decisionTree
-	feature  *struct {
-		index int
-		_type string
-	}
+	feature  *decisionTreeFeature
+
 	// leaf
-	values [][]*lib.Value
+	class interface{}
+
+	isLeaf bool
+}
+
+type decisionTreeFeature struct {
+	index int
+	_type string
 }
 
 // TODO
@@ -51,7 +59,7 @@ func (this *DT) Train(data [][]*lib.Value) {
 }
 
 // gaId3 generates a decisionTree with ID3 algorithm
-func gaID3(tree *decisionTree, alpha float64, data [][]*lib.Value) {
+func gaID3(tree *decisionTree, threshold float64, data [][]*lib.Value) {
 	// amount of records in data
 	m := len(data)
 	if m == 0 {
@@ -101,10 +109,46 @@ func gaID3(tree *decisionTree, alpha float64, data [][]*lib.Value) {
 			featureIndex = i
 		}
 	}
+	// end generation
+	if maxGain < threshold {
+		var (
+			maxClass interface{}
+			maxCount int
+			cm       map[interface{}]int = make(map[interface{}]int)
+		)
+		for i := 0; i < m; i++ {
+			cm[data[i][n-1].V()] += 1
+		}
+		for k, v := range cm {
+			if v > maxCount {
+				maxClass = k
+				maxCount = v
+			}
+		}
+		tree.class = maxClass
+		tree.isLeaf = true
+		return
+	}
+	// select the feature having max classes
+	tree.feature = &decisionTreeFeature{index: featureIndex, _type: data[0][featureIndex].T()}
+	tree.children = map[interface{}]*decisionTree{}
 	// classify
-	// TODO
+	var subData map[interface{}][][]*lib.Value = make(map[interface{}][][]*lib.Value)
+	for i := 0; i < m; i++ {
+		feature := data[i][featureIndex].V()
+		if subData[feature] == nil {
+			subData[feature] = [][]*lib.Value{}
+		}
+		subData[feature] = append(subData[feature], data[i])
+	}
+	// recursively call gaID3
+	for k, v := range subData {
+		tree.children[k] = new(decisionTree)
+		gaID3(tree.children[k], threshold, v)
+	}
 }
 
+// calculate probabilities
 func p(data [][]*lib.Value, index int) []float64 {
 	var (
 		leng int = len(data)
@@ -115,9 +159,9 @@ func p(data [][]*lib.Value, index int) []float64 {
 		m[data[i][index].V()] += 1
 	}
 	for _, v := range m {
-		p = append(p, float64(v)/float64(leng))
+		prob = append(prob, float64(v)/float64(leng))
 	}
-	return p
+	return prob
 }
 
 // entropy calculates the infomation entropy
@@ -132,13 +176,16 @@ func entropy(p ...float64) float64 {
 	return e
 }
 
-// TODO
+// classify
 func (this *DT) Predict(v []*lib.Value) (interface{}, string) {
-	//
-	return nil, ""
+	tree := this.tree
+	for !tree.isLeaf {
+		tree = tree.children[v[tree.feature.index].V()]
+	}
+	return tree.class, this.classType
 }
 
 // NewDT returns a new DT
-func NewDT(ga, postPruning int, alpha float64) *DT {
-	return &DT{ga: ga, postPruning: postPruning, alpha: alpha, tree: new(decisionTree)}
+func NewDT(ga, postPruning int, threshold float64) *DT {
+	return &DT{ga: ga, postPruning: postPruning, threshold: threshold, tree: new(decisionTree)}
 }
