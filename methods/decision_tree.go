@@ -63,7 +63,7 @@ func (this *DT) Train(data [][]*lib.Value) {
 	case DT_GA_ID3:
 		gaID3(this.tree, this.threshold, data)
 	case DT_GA_C4_5:
-		// TODO
+		gaC4_5(this.tree, this.threshold, data)
 	case DT_GA_CART:
 		// TODO
 	default:
@@ -172,6 +172,96 @@ func gaID3(tree *decisionTree, threshold float64, data [][]*lib.Value) {
 	for k, v := range subData {
 		tree.children[k] = new(decisionTree)
 		gaID3(tree.children[k], threshold, v)
+	}
+}
+
+// gaC4_5 generates a decisionTree with C4.5 algorithm
+func gaC4_5(tree *decisionTree, threshold float64, data [][]*lib.Value) {
+	// amount of records in data
+	m := len(data)
+	if m == 0 {
+		return
+	}
+	// amount of features in each record, and last dimension of record is y
+	n := len(data[0])
+	if n == 0 {
+		return
+	}
+	var (
+		ent float64   = entropy((p(data, n-1))...)
+		grs []float64 = make([]float64, n-1)
+	)
+	// calculate each infomation gain
+	for i := 0; i < n-1; i++ {
+		var (
+			fx map[interface{}]int                 = make(map[interface{}]int)
+			fy map[interface{}]map[interface{}]int = make(map[interface{}]map[interface{}]int)
+		)
+		for j := 0; j < m; j++ {
+			fx[data[j][i].V()] += 1
+			if _, existed := fy[data[j][i].V()]; !existed {
+				fy[data[j][i].V()] = map[interface{}]int{}
+			}
+			fy[data[j][i].V()][data[j][n-1].V()] += 1
+		}
+		// conditional entropy
+		var h float64
+		for kx, vx := range fx {
+			proby := []float64{}
+			for _, vy := range fy[kx] {
+				proby = append(proby, float64(vy)/float64(vx))
+			}
+			h += (float64(vx) / float64(m)) * entropy(proby...)
+		}
+		grs[i] = (ent - h) / ent
+	}
+	// select a feature with max infomation gain
+	var (
+		featureIndex int     = 0
+		maxGainR     float64 = grs[0]
+	)
+	for i := 1; i < n-1; i++ {
+		if grs[i] > maxGainR {
+			maxGainR = grs[i]
+			featureIndex = i
+		}
+	}
+	// end generation
+	if maxGainR < threshold {
+		var (
+			maxClass interface{}
+			maxCount int
+			cm       map[interface{}]int = make(map[interface{}]int)
+		)
+		for i := 0; i < m; i++ {
+			cm[data[i][n-1].V()] += 1
+		}
+		for k, v := range cm {
+			if v > maxCount {
+				maxClass = k
+				maxCount = v
+			}
+		}
+		tree.class = maxClass
+		tree.isLeaf = true
+		return
+	}
+	// select the feature having max classes
+	tree.feature = &decisionTreeFeature{index: featureIndex, _type: data[0][featureIndex].T()}
+	tree.children = map[interface{}]*decisionTree{}
+	// classify
+	var subData map[interface{}][][]*lib.Value = make(map[interface{}][][]*lib.Value)
+	for i := 0; i < m; i++ {
+		feature := data[i][featureIndex].V()
+		if subData[feature] == nil {
+			subData[feature] = [][]*lib.Value{}
+		}
+		subData[feature] = append(subData[feature], data[i])
+	}
+	// recursively call gaID3
+	for k, v := range subData {
+		tree.children[k] = new(decisionTree)
+		gaC4_5(tree.children[k], threshold, v)
 	}
 }
 

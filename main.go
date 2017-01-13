@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// create a decision tree
-	dt := methods.NewDT(methods.DT_GA_ID3, methods.DT_PRUNING_NO, 0.1)
+	dt := methods.NewDT(methods.DT_GA_C4_5, methods.DT_PRUNING_NO, 0.5)
 
 	// test a new record
 	v := []*lib.Value{nv(AGE_E, BYTE), nv(true, BOOL), nv(false, BOOL), nv(BELIEF_BAD, BYTE)}
