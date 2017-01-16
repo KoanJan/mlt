@@ -8,6 +8,9 @@ type Matrix interface {
 	String() string            // format output as string
 	IsEqual(Matrix) bool       // is equal to another matrix
 
+	// options
+	Transpose() Matrix // transpose
+
 	// calc
 	Plus(Matrix) Matrix  // matrix plus
 	Multi(Matrix) Matrix // matrix multi

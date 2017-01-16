@@ -89,6 +89,21 @@ func (this *MatrixInt64) IsEqual(m Matrix) bool {
 	return true
 }
 
+func (this *MatrixInt64) Transpose() Matrix {
+	var (
+		m, n    int       = this.Size()
+		newData [][]int64 = [][]int64{}
+	)
+	for i := 0; i < n; i++ {
+		row := []int64{}
+		for j := 0; j < m; j++ {
+			row = append(row, this.data[j][i])
+		}
+		newData = append(newData, row)
+	}
+	return NewMatrixInt64(newData)
+}
+
 func (this *MatrixInt64) Plus(m Matrix) Matrix {
 	if canMatrixPlus(this, m) {
 		row, col := this.Size()
