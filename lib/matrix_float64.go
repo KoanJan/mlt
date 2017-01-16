@@ -169,3 +169,17 @@ func (this *MatrixFloat64) MultiNumber(v interface{}) Matrix {
 func NewMatrixFloat64(dataFloat64 [][]float64) Matrix {
 	return &MatrixFloat64{data: dataFloat64}
 }
+
+func NewIdentityMatrixFloat64(n int) Matrix {
+	if n <= 0 {
+		panic("matrix should contain one element at least")
+	}
+	var data [][]float64 = make([][]float64, n)
+	for i := 0; i < n; i++ {
+		data[i] = make([]float64, n)
+	}
+	for i := 0; i < n; i++ {
+		data[i][i] = 1.0
+	}
+	return NewMatrixFloat64(data)
+}

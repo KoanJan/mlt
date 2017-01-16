@@ -184,3 +184,17 @@ func (this *MatrixInt64) MultiNumber(v interface{}) Matrix {
 func NewMatrixInt64(dataInt64 [][]int64) Matrix {
 	return &MatrixInt64{data: dataInt64}
 }
+
+func NewIdentityMatrixInt64(n int) Matrix {
+	if n <= 0 {
+		panic("matrix should contain one element at least")
+	}
+	var data [][]int64 = make([][]int64, n)
+	for i := 0; i < n; i++ {
+		data[i] = make([]int64, n)
+	}
+	for i := 0; i < n; i++ {
+		data[i][i] = 1
+	}
+	return NewMatrixInt64(data)
+}
